@@ -4,7 +4,7 @@ const cors = require('cors');
 require('dotenv').config(); 
 
 
-const atletasRoutes = require('./routes/atletasRoutes');
+const routes = require('./routes/index');
 
 
 const app = express();
