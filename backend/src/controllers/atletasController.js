@@ -46,7 +46,7 @@ exports.deleteAtleta = (req, res) => {
     });
 };
 */
-
+/*
 const db = require('../config/db'); // seu pool Promise
 
 // LISTAR TODOS OS ATLETAS
@@ -116,6 +116,114 @@ exports.deleteAtleta = async (req, res) => {
     res.json({ message: 'Atleta deletado com sucesso' });
   } catch (err) {
     console.error(err);
+    res.status(500).json({ error: 'Erro ao deletar atleta' });
+  }
+};
+*/
+
+const db = require('../config/db'); // conexão com MySQL (promise)
+
+// ================================
+// LISTAR TODOS OS ATLETAS
+// ================================
+exports.getAtletas = async (req, res) => {
+  try {
+    const [results] = await db.query('SELECT * FROM atletas');
+    res.json(results);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro ao buscar atletas' });
+  }
+};
+
+// ================================
+// BUSCAR ATLETA POR ID
+// ================================
+exports.getAtletaById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [results] = await db.query(
+      'SELECT * FROM atletas WHERE id = ?',
+      [id]
+    );
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: 'Atleta não encontrado' });
+    }
+
+    res.json(results[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro ao buscar atleta' });
+  }
+};
+
+// ================================
+// CRIAR NOVO ATLETA
+// ================================
+exports.createAtleta = async (req, res) => {
+  const { nome, idade, modalidade } = req.body;
+
+  try {
+    const [result] = await db.query(
+      'INSERT INTO atletas (nome, idade, modalidade) VALUES (?, ?, ?)',
+      [nome, idade, modalidade]
+    );
+
+    res.status(201).json({
+      message: 'Atleta criado com sucesso',
+      id: result.insertId
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro ao criar atleta' });
+  }
+};
+
+// ================================
+// ATUALIZAR ATLETA
+// ================================
+exports.updateAtleta = async (req, res) => {
+  const { id } = req.params;
+  const { nome, idade, modalidade } = req.body;
+
+  try {
+    const [result] = await db.query(
+      'UPDATE atletas SET nome = ?, idade = ?, modalidade = ? WHERE id = ?',
+      [nome, idade, modalidade, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Atleta não encontrado' });
+    }
+
+    res.json({ message: 'Atleta atualizado com sucesso' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Erro ao atualizar atleta' });
+  }
+};
+
+// ================================
+// DELETAR ATLETA
+// ================================
+exports.deleteAtleta = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [result] = await db.query(
+      'DELETE FROM atletas WHERE id = ?',
+      [id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Atleta não encontrado' });
+    }
+
+    res.json({ message: 'Atleta deletado com sucesso' });
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Erro ao deletar atleta' });
   }
 };
